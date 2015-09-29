@@ -19,7 +19,7 @@ router.get('/insert/:name', function(req, res, next) {
   });
 });
 
-router.get('/:id', function(req, res, next) {
+router.delete('/:id', function(req, res, next) {
   db.collection('events').remove(
     {_id: ID(req.params.id)},
     function(err, result) {
