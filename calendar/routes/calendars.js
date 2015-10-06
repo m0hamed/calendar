@@ -3,7 +3,7 @@ var router = express.Router();
 
 var mongo = require('mongoskin');
 var ID = mongo.helper.toObjectID;
-var db = mongo.db('mongodb://localhost:27017/calendar');
+var db = mongo.db('mongodb://127.0.0.1:27017/calendar');
 var calendars = db.collection('calendars');
 
 router.post('/', function(req, res, next) {
