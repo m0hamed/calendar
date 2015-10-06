@@ -1,3 +1,5 @@
+"use strict"
+
 var express = require('express');
 var router = express.Router({mergeParams:true});
 
@@ -8,6 +10,8 @@ var db = mongo.db('mongodb://localhost:27017/calendar');
 var _ = require('lodash');
 
 var calendar_id;
+// added this to make create event work but why.
+var body;
 
 router.all('*', function(req, res, next) {
   console.log("In the pre action filter");
@@ -35,6 +39,14 @@ router.get('/', function(req, res, next) {
     });
 });
 
+router.post('/search', function(req, res, next) {
+  var query = parse(req.body);
+  db.collection('events').find(query).toArray(function(err, result) {
+    if (!err) res.send(result);
+    else res.send("search failed: " + err);
+  });
+});
+
 router.post('/:id', function(req, res, next) {
   console.log(req.params, req.body);
   db.collection('events').update(
@@ -55,6 +67,17 @@ router.delete('/:id', function(req, res, next) {
       else res.send('Error, Can\'t delete: ' + err);
     });
 });
+
+
+// should be moved to helper functions component
+// should be extended with other field. ex: time, place
+function parse(params) {
+  var query = {"calendar_id": calendar_id};
+  if (params.name) query.name = {$regex: new RegExp(".*" + params.name + ".*")};
+  if (params.place) query.place = {$regex: new RegExp(".*" + params.place + ".*")};
+  if (params.time) query.time = { $gte: params.time.after, $lte: params.time.before};
+  return query
+};
 
 
 module.exports = router;
