@@ -75,7 +75,7 @@ function parse(params) {
   var query = {"calendar_id": calendar_id};
   if (params.name) query.name = {$regex: new RegExp(".*" + params.name + ".*")};
   if (params.place) query.place = {$regex: new RegExp(".*" + params.place + ".*")};
-  if (params.starts_at) query.time = { $gte: params.time.after, $lte: params.time.before};
+  if (params.starts_at) query.starts_at = { $gte: params.starts_at.from, $lte: params.starts_at.to};
   return query
 };
 
