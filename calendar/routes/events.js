@@ -10,8 +10,6 @@ var db = mongo.db('mongodb://localhost:27017/calendar');
 var _ = require('lodash');
 
 var calendar_id;
-// added this to make create event work but why.
-var body;
 
 router.all('*', function(req, res, next) {
   console.log("In the pre action filter");
@@ -26,10 +24,13 @@ router.all('*', function(req, res, next) {
 router.post('/', function(req, res, next) {
   console.log(req.params);
   console.log(req.body);
-  db.collection('events').insert(_.extend(req.body, {"calendar_id": calendar_id}),
-                                          function(err, result) {
-    if(result) res.send('Inserted ' + req.body.nickname+"\n result="+JSON.stringify(result));
-  });
+  db.collection('events').
+      insert(_.extend(req.body, {"calendar_id": calendar_id}),
+        function(err, result) {
+          if(result)
+            res.send('Inserted ' + req.body.nickname+"\n result="+JSON.stringify(result));
+        }
+      );
 });
 
 router.get('/', function(req, res, next) {
