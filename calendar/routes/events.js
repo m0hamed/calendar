@@ -12,15 +12,34 @@ var _ = require('lodash');
 var calendar_id;
 // added this to make create event work but why.
 var body;
+var user;
+
+router.all('*', function(req, res, next) {
+  var auth_token = ID(req.params.auth_token);
+  db.collection('users').find({auth_token: auth_token})
+    .toArray(function(err, result) {
+      console.log(result);
+      if(result.length==0) res.status(403).send('Invalid authentication token used!' + 
+                                               'Are you trying something nasty?');
+      else {
+        user = result[0];
+        next();
+      }
+    });
+});
 
 router.all('*', function(req, res, next) {
   console.log("In the pre action filter");
   calendar_id = ID(req.params.cal_id);
-  db.collection('calendars').find({_id: calendar_id})
-    .toArray(function(err, result) {
-      console.log(result);
-      if(result.length==0) res.status(404).send('Calendar not found');
-      else next();
+  utils.auth_user(user._id, calendar_id).then(function(isAuth) {
+    if (isAuth) {
+      db.collection('calendars').find({_id: calendar_id})
+      .toArray(function(err, result) {
+        console.log(result);
+        if(result.length==0) res.status(404).send('Calendar not found');
+        else next();
+      });
+    } else res.status(403).send('Access Forbidden');
     });
 });
 
@@ -31,7 +50,8 @@ router.post('/', function(req, res, next) {
   body = req.body
   db.collection('events').insert(_.extend(body, {"calendar_id": calendar_id}),
                                           function(err, result) {
-    if(result) res.send('Inserted ' + req.body.nickname+"\n result="+JSON.stringify(result));
+    if(result) res.send('Inserted ' + req.body.name+"\n result="+JSON.stringify(result));
+    else res.send('Can not insert event' + req.body.name);
   });
 });
 
