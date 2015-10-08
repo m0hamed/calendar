@@ -15,32 +15,25 @@ var user;
 
 router.all('*', function(req, res, next) {
   var auth_token = req.query.auth_token;
-  console.log(auth_token);
-  db.collection('sessions').find({token: auth_token})
-    .toArray(function(err, result) {
-      console.log(result);
-      if(result.length==0) res.status(403).send('Invalid authentication token used!' + 
-                                               'Are you trying something nasty?');
-      else {
-        user = result[0];
-        next();
-      }
-    });
+  utils.get_user_from_token(auth_token).then((result) => {
+    user = result;
+    next();
+  }).catch((err) => {
+    res.status(403).send({error: err});
+  });
 });
 
 router.all('*', function(req, res, next) {
-  console.log("In the pre action filter");
-  calendar_id = ID(req.params.cal_id);
+  calendar_id = req.params.cal_id;
   utils.auth_user(user._id, calendar_id).then(function(isAuth) {
-    if (isAuth) {
-      db.collection('calendars').find({_id: calendar_id})
-      .toArray(function(err, result) {
-        console.log(result);
-        if(result.length==0) res.status(404).send('Calendar not found');
-        else next();
-      });
-    } else res.status(403).send('Access Forbidden');
+    if (!isAuth) throw 'Access Forbidden';
+  }).then(() => {
+    db.collection('calendars').find({_id: ID(calendar_id)})
+    .toArray(function(err, result) {
+      if(result.length==0) res.status(404).send({error: 'Calendar not found'});
+      else next();
     });
+  }).catch((err) => res.status(400).send({error: err}));
 });
 
 router.post('/', function(req, res, next) {
@@ -50,8 +43,8 @@ router.post('/', function(req, res, next) {
     insert(_.extend(req.body, {"calendar_id": calendar_id}),
            function(err, result) {
              if(result)
-               res.send('Inserted ' + req.body.nickname+"\n result="+JSON.stringify(result));
-             else res.send('Can not insert event' + req.body.name);
+               res.send(result);
+             else res.send({error: 'Can not insert event' + req.body.name});
            });
 });
 
@@ -66,7 +59,7 @@ router.post('/search', function(req, res, next) {
   var query = parse(req.body.query);
   db.collection('events').find(query).toArray(function(err, result) {
     if (!err) res.send(result);
-    else res.send("search failed: " + err);
+    else res.status(400).send({error: "search failed: " + err});
   });
 });
 
@@ -76,9 +69,8 @@ router.post('/:id', function(req, res, next) {
     {_id: ID(req.params.id), calendar_id: calendar_id},
     _.extend(req.body, {calendar_id: calendar_id}),
     function(err, result) {
-      if (!err) res.send('Updated ' + req.params.id + "\n result=" +
-                         JSON.stringify(result));
-      else res.send('Error, Can\'t update: ' + err);
+      if (!err) res.send(result);
+      else res.status(400).send({error: 'Error, Can\'t update: ' + err});
     })
 });
 
@@ -86,8 +78,8 @@ router.delete('/:id', function(req, res, next) {
   db.collection('events').remove(
     {_id: ID(req.params.id)},
     function(err, result) {
-      if(!err) res.send('Deleted ' + req.params.id+"\n result="+JSON.stringify(result));
-      else res.send('Error, Can\'t delete: ' + err);
+      if(!err) res.send(result);
+      else res.status(400).send({error: 'Error, Can\'t delete: ' + err});
     });
 });
 

@@ -17,17 +17,16 @@ var USER_PARAMS = ['username', 'password']
 
 router.post('/', function(req, res, next) {
   users.insertAsync(_.pick(req.body, USER_PARAMS)).then(function(result) {
-      res.send('Inserted ' + req.body.username+"\n result="
-                        +JSON.stringify(result));}
+      res.send(result);}
     ).catch(function(err){
-      res.send('Failed to insert with err' + err + "\n");
+      res.status(400).send({error: 'Failed to insert with err' + err});
     });
 });
 
 router.post('/login', function(req, res, next) {
   users.findOneAsync(_.pick(req.body, USER_PARAMS)).then(function(result) {
     if (!result) throw "Username or password is wrong"
-    get_token(result).then((token) => res.send(token));
+    get_token(result).then((token) => res.send({token: token}));
   }).catch(function (err) {
     res.status(403).send(err)
   });

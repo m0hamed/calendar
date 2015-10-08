@@ -3,45 +3,41 @@ var utils = require('../components/utils.js');
 var router = express.Router();
 var _ = require('lodash');
 
-var mongo = require('mongoskin');
+var Promise = require("bluebird");
+
+var mongo = Promise.promisifyAll(require('mongoskin'));
 var ID = mongo.helper.toObjectID;
 var db = mongo.db('mongodb://127.0.0.1:27017/calendar');
 var calendars = db.collection('calendars');
 var user;
 
 router.all('*', function(req, res, next) {
-  console.log(req.body);
   var auth_token = req.query.auth_token;
-  console.log(auth_token);
-  db.collection('sessions').find({token: auth_token})
-    .toArray(function(err, result) {
-      console.log(result);
-      if(result.length==0) res.status(403).send('Invalid authentication token used!' + 
-                                               'Are you trying something nasty?');
-      else {
-        console.log('result: ', result[0]);
-        user = result[0];
-        next();
-      }
-    });
+  utils.get_user_from_token(auth_token).then((result) => {
+    user = result;
+    next();
+  }).catch((err) => {
+    res.status(403).send({error: err});
+  });
 });
 
-router.all('/.+', function(req, res, next) {
+router.all('*', function(req, res, next) {
+  if (!req.params.id) {
+    next();
+    return;
+  }
   utils.auth_user(user._id, req.params.id).then(function(isAuth) {
     if (isAuth) next();
-    else res.status(403).send('Access Forbidden');
+    else res.status(403).send({error: 'Access Forbidden'});
   });
 });
 
 router.post('/', function(req, res, next) {
-  console.log(req.params);
-  console.log(req.body);
-  console.log('user: ', user);
-  calendars.insert(_.extend(req.body, {"user_id": user.id}), function(err, result) {
-    if(!err) res.send('Inserted ' + req.body.calendar.name+"\n result="
-                        +JSON.stringify(result));
-    else res.send('Failed to insert ' + req.body.calendar.name+
-                  '\n result='+JSON.stringify(err)+"\n");
+  calendars.insertAsync(set_user(req.body, user)).then((result) =>{
+    res.send(result);
+  }).catch((err)=> {
+    res.status(400).send({error: 'Failed to insert ' + req.body.name+
+                  '\n result='+JSON.stringify(result)});
   });
 });
 
@@ -55,11 +51,10 @@ router.post('/:id', function(req, res, next) {
   console.log(req.params, req.body);
   calendars.update(
     {_id: ID(req.params.id)},
-    req.body,
+    set_user(req.body, user),
     function(err, result) {
-      if (!err) res.send('Updated ' + req.params.id + "\n result=" +
-                         JSON.stringify(result));
-        else res.send('Error, Can\'t update: ' + err);
+      if (!err) res.send(result);
+        else res.status(400).send({error: 'Error, Can\'t update: ' + err});
     });
 });
 
@@ -67,10 +62,13 @@ router.delete('/:id', function(req, res, next) {
   calendars.remove(
     {_id: ID(req.params.id)},
     function(err, result) {
-      if(!err) res.send('Deleted ' + req.params.id+"\n result="+JSON.stringify(result));
-      else res.send('Error, Can\'t delete: ' + err);
+      if(!err) res.send(result);
+      else res.status(400).send({error: 'Error, Can\'t delete: ' + err});
     });
 });
 
+function set_user(calendar, user) {
+  return _.assign({}, calendar, {user_id: user._id});
+}
 
 module.exports = router;
