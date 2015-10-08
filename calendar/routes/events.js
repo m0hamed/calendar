@@ -2,6 +2,7 @@
 
 var express = require('express');
 var router = express.Router({mergeParams:true});
+var utils = require('../components/utils.js');
 
 var mongo = require('mongoskin');
 var ID = mongo.helper.toObjectID;
@@ -10,13 +11,12 @@ var db = mongo.db('mongodb://localhost:27017/calendar');
 var _ = require('lodash');
 
 var calendar_id;
-// added this to make create event work but why.
-var body;
 var user;
 
 router.all('*', function(req, res, next) {
-  var auth_token = ID(req.params.auth_token);
-  db.collection('users').find({auth_token: auth_token})
+  var auth_token = req.query.auth_token;
+  console.log(auth_token);
+  db.collection('sessions').find({token: auth_token})
     .toArray(function(err, result) {
       console.log(result);
       if(result.length==0) res.status(403).send('Invalid authentication token used!' + 
@@ -46,23 +46,24 @@ router.all('*', function(req, res, next) {
 router.post('/', function(req, res, next) {
   console.log(req.params);
   console.log(req.body);
-  // why
-  body = req.body
-  db.collection('events').insert(_.extend(body, {"calendar_id": calendar_id}),
-                                          function(err, result) {
-    if(result) res.send('Inserted ' + req.body.name+"\n result="+JSON.stringify(result));
-    else res.send('Can not insert event' + req.body.name);
-  });
+  db.collection('events').
+    insert(_.extend(req.body, {"calendar_id": calendar_id}),
+           function(err, result) {
+             if(result)
+               res.send('Inserted ' + req.body.nickname+"\n result="+JSON.stringify(result));
+             else res.send('Can not insert event' + req.body.name);
+           });
 });
 
 router.get('/', function(req, res, next) {
-  db.collection('events').find().toArray(function(err, result) {
-    res.send(result);
-  });
+  db.collection('events').find({calendar_id: calendar_id})
+    .toArray(function(err, result) {
+      res.send(result);
+    });
 });
 
 router.post('/search', function(req, res, next) {
-  var query = parse(req.body);
+  var query = parse(req.body.query);
   db.collection('events').find(query).toArray(function(err, result) {
     if (!err) res.send(result);
     else res.send("search failed: " + err);
@@ -72,8 +73,8 @@ router.post('/search', function(req, res, next) {
 router.post('/:id', function(req, res, next) {
   console.log(req.params, req.body);
   db.collection('events').update(
-    {_id: ID(req.params.id)},
-    req.body,
+    {_id: ID(req.params.id), calendar_id: calendar_id},
+    _.extend(req.body, {calendar_id: calendar_id}),
     function(err, result) {
       if (!err) res.send('Updated ' + req.params.id + "\n result=" +
                          JSON.stringify(result));
@@ -97,7 +98,7 @@ function parse(params) {
   var query = {"calendar_id": calendar_id};
   if (params.name) query.name = {$regex: new RegExp(".*" + params.name + ".*")};
   if (params.place) query.place = {$regex: new RegExp(".*" + params.place + ".*")};
-  if (params.time) query.time = { $gte: params.time.after, $lte: params.time.before};
+  if (params.starts_at) query.starts_at = { $gte: params.starts_at.from, $lte: params.starts_at.to};
   return query
 };
 

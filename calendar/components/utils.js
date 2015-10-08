@@ -7,6 +7,7 @@ var calendars = db.collection('calendars');
 exports.auth_user = function(user_id, calendar_id) {
   return new Promise(function(resolve, reject) {
     calendars.find({"_id": calendar_id}).toArray(function(err, result) {
+      console.log(user_id, result);
       if (err || !result.length) reject(err);
       else resolve(result[0].user_id == user_id);
     })
