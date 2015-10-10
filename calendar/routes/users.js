@@ -15,6 +15,7 @@ var _ = require('lodash');
 
 var USER_PARAMS = ['username', 'password']
 
+// registeration end point to create a new user from a username and password
 router.post('/', function(req, res, next) {
   users.insertAsync(_.pick(req.body, USER_PARAMS)).then(function(result) {
       res.send(result);}
@@ -23,6 +24,9 @@ router.post('/', function(req, res, next) {
     });
 });
 
+// login end point that takes username and password and sends back
+// an authentication token to be used for subsequent communication with
+// with the api
 router.post('/login', function(req, res, next) {
   users.findOneAsync(_.pick(req.body, USER_PARAMS)).then(function(result) {
     if (!result) throw "Username or password is wrong"
@@ -32,6 +36,8 @@ router.post('/login', function(req, res, next) {
   });
 });
 
+// Generates a new token for each user session, authentication token is later
+// expected as a query string auth_token
 function get_token(params) {
   var token = uuid.v4();
   return sessions.insertAsync({user_id: params._id,
