@@ -1,4 +1,6 @@
 {
   "username": "lol",
-  "password": "haha"
+  "password": "haha",
+  "token": "",
+  "cred": ""
 }

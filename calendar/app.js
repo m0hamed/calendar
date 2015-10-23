@@ -9,6 +9,7 @@ var routes = require('./routes/index');
 var users = require('./routes/users');
 var events = require('./routes/events');
 var calendars = require('./routes/calendars');
+var oauth = require('./routes/oauth.js');
 
 var app = express();
 
@@ -28,6 +29,7 @@ app.use('/', routes);
 app.use('/users', users);
 app.use('/calendars', calendars);
 app.use('/calendars/:cal_id/events', events);
+app.use('/oauthcallback', oauth);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

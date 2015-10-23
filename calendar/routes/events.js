@@ -1,14 +1,15 @@
 "use strict"
 
-var express = require('express');
+var express = require('express'),
+  utils   = require('../components/utils.js'),
+  _ = require('lodash'),
+  Promise = require('bluebird'),
+  google = require('../components/googleapi.js'),
+  db = require('../components/db.js');
+
 var router = express.Router({mergeParams:true});
-var utils = require('../components/utils.js');
 
-var mongo = require('mongoskin');
-var ID = mongo.helper.toObjectID;
-var db = mongo.db('mongodb://localhost:27017/calendar');
-
-var _ = require('lodash');
+var BASE_ROUTE = 'http://instacalendar.tz:3000';
 
 var calendar_id;
 var user;
@@ -33,7 +34,7 @@ router.all('*', function(req, res, next) {
   utils.auth_user(user._id, calendar_id).then(function(isAuth) {
     if (!isAuth) throw 'Access Forbidden';
   }).then(() => {
-    db.collection('calendars').find({_id: ID(calendar_id)})
+    db.calendars.find({_id: db.ID(calendar_id)})
     .toArray(function(err, result) {
       if(result.length==0) res.status(404).send({error: 'Calendar not found'});
       else next();
@@ -45,7 +46,7 @@ router.all('*', function(req, res, next) {
 router.post('/', function(req, res, next) {
   console.log(req.params);
   console.log(req.body);
-  db.collection('events').
+  db.events.
     insert(_.extend(req.body, {"calendar_id": calendar_id}),
            function(err, result) {
              if(result)
@@ -54,18 +55,39 @@ router.post('/', function(req, res, next) {
            });
 });
 
+router.get('/syncfromremote', function(req, res, next) {
+  google.authorize({url: req.originalUrl, "user": user}, true).then(function(auth) {
+    return google.get_events(auth)
+  }).then(function(events) {
+    events.forEach(function(googleEvent) {
+      var event = _.extend(google.degooglify(googleEvent), {"calendar_id":
+                           calendar_id});
+      db.events.find({"calendar_id": calendar_id, "google_id":
+                     event.google_id}).toArray(function(err, result) { 
+        if (!result.length)
+          db.events.insert(event, function(err, result) {});
+      }); 
+    });
+    res.redirect(BASE_ROUTE + '/calendars/' + calendar_id +
+                 '/events?auth_token=' + req.query.auth_token);
+  }).catch(function(url) {
+    console.log(url);
+    res.redirect(url);
+  });
+});
+
 // end point to list the events for the current calendar
 router.get('/', function(req, res, next) {
-  db.collection('events').find({calendar_id: calendar_id})
-    .toArray(function(err, result) {
-      res.send(result);
-    });
+  db.events.find({calendar_id: calendar_id})
+  .toArray(function(err, result) {
+    res.send(result);
+  });
 });
 
 // end point to send search data to query events
 router.post('/search', function(req, res, next) {
   var query = parse(req.body.query);
-  db.collection('events').find(query).toArray(function(err, result) {
+  db.events.find(query).toArray(function(err, result) {
     if (!err) res.send(result);
     else res.status(400).send({error: "search failed: " + err});
   });
@@ -74,8 +96,8 @@ router.post('/search', function(req, res, next) {
 // end point to update and event with :id
 router.post('/:id', function(req, res, next) {
   console.log(req.params, req.body);
-  db.collection('events').update(
-    {_id: ID(req.params.id), calendar_id: calendar_id},
+  db.events.update(
+    {_id: db.ID(req.params.id), calendar_id: calendar_id},
     _.extend(req.body, {calendar_id: calendar_id}),
     function(err, result) {
       if (!err) res.send(result);
@@ -85,8 +107,8 @@ router.post('/:id', function(req, res, next) {
 
 // end point to delete an event with :id
 router.delete('/:id', function(req, res, next) {
-  db.collection('events').remove(
-    {_id: ID(req.params.id)},
+  db.events.remove(
+    {_id: db.ID(req.params.id)},
     function(err, result) {
       if(!err) res.send(result);
       else res.status(400).send({error: 'Error, Can\'t delete: ' + err});
