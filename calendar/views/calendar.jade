@@ -1,0 +1,7 @@
+extends layout
+
+block content
+  h1= title
+  div(id="calendar", data-calendar-id=calendar_id)
+  script(type="text/javascript").
+    $(display_calendar);
