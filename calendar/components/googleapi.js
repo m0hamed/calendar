@@ -11,7 +11,7 @@ var SCOPE = 'https://www.googleapis.com/auth/calendar';
 
 var CLIENT_ID     = "736239933078-gb14pldjeoklau6rptu1f30vmtnl8ov4.apps.googleusercontent.com", 
     CLIENT_SECRET = "hpp9EWJAggs6RYptSAhwDhCs",
-    REDIRECT_URL  = "http://instacalendar.tz:3000/oauthcallback"
+    REDIRECT_URL  = "http://instacalendar.tz:3000/api/oauthcallback"
 
 module.exports = {
 
