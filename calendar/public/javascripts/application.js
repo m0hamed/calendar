@@ -71,9 +71,11 @@ function display_calendar() {
           id: event._id,
           title: event.name,
           start: event.starts_at,
-          end: event.ends_at
+          end: event.ends_at,
+          location: event.place
         };
       });
+      console.log(events);
       $('#calendar').fullCalendar(
         {
           header: {
@@ -82,7 +84,14 @@ function display_calendar() {
             right: 'month,basicWeek,basicDay'
           },
           editable: true,
-          events: events
+          events: events,
+          eventClick: function(calEvent, jsEvent, view) {
+            console.log(calEvent);
+            $("#event-form input[name='name']").val(calEvent.title);
+            $("#event-form input[name='location']").val(calEvent.location);
+            $("#event-form input[name='starts']").val(calEvent.start);
+            $("#event-form input[name='ends']").val(calEvent.end);
+          }
         });
     });
 }
@@ -100,10 +109,10 @@ function processEvent() {
 
 function getEventData() {
   return {
-    name: $("#event-form input[name='name'").val(),
-    place: $("#event-form input[name='location'").val(),
-    starts_at: $("#event-form input[name='starts'").val(),
-    ends_at: $("#event-form input[name='ends'").val(),
+    name: $("#event-form input[name='name']").val(),
+    place: $("#event-form input[name='location']").val(),
+    starts_at: $("#event-form input[name='starts']").val(),
+    ends_at: $("#event-form input[name='ends']").val(),
   }
 }
 
