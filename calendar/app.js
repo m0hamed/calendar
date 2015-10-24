@@ -34,8 +34,8 @@ app.use('/api/calendars', calendarsApi);
 app.use('/api/calendars/:cal_id/events', eventsApi);
 app.use('/api/oauthcallback', oauthApi);
 
-app.use('/events', events);
 app.use('/calendars', calendars);
+app.use('/events', events);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

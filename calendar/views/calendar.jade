@@ -11,17 +11,20 @@ block content
 
     });
 
+  br
+
   form(onsubmit="processEvent();return false;", id="event-form")
+    input(name="event_id", type="hidden")
     div
-      label name
+      label name 
       input(name="name")
     div
-      label location
+      label location 
       input(name="location")
     div
-      label starts
+      label starts 
       input(name="starts")
     div
-      label ends
+      label ends 
       input(name="ends")
     input(type="submit", value="Submit")
