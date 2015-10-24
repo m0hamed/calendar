@@ -29,3 +29,7 @@ function register() {
     $("#notification").text("Login failed please try again");
   });
 }
+
+function getAuthToken() {
+  return localStorage.getItem('login_token');
+}
