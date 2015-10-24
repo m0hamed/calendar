@@ -12,6 +12,8 @@ var calendarsApi = require('./routes/api/calendars');
 var oauthApi = require('./routes/api/oauth.js');
 var calendars = require('./routes/calendar.js');
 
+var calendars = require('./routes/calendars.js');
+
 var app = express();
 
 // view engine setup
@@ -32,6 +34,8 @@ app.use('/api/calendars', calendarsApi);
 app.use('/calendars', calendars);
 app.use('/api/calendars/:cal_id/events', eventsApi);
 app.use('/api/oauthcallback', oauthApi);
+
+app.use('/calendars', calendars);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

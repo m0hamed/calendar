@@ -8,6 +8,7 @@ function login() {
      },
      function(data){
        localStorage.setItem("login_token", data.token)
+       window.location.replace("/calendars?auth_token=" + data.token);
      }
   ).fail(function(){
     $("#notification").text("Login failed please try again");
@@ -25,8 +26,34 @@ function register() {
      function(data){
        window.location.replace("/");
      }
-  ).fail(function(){
-    $("#notification").text("Login failed please try again");
+  ).fail(function(err){
+    $("#notification").text("Registeration failed! please try again.");
+  });
+}
+
+function getCalendars() {
+  $.get("/api/calendars?auth_token=" + getAuthToken(), function(data) {
+    console.log(data);
+    data.forEach(function(calendar) {
+      $("#calendars").append($("<a />", {
+        href: "/calendars/" + calendar._id + "/events?auth_token=" + getAuthToken(),
+        text: calendar.name
+      }));
+      $("#calendars").append("<br/>");
+    });
+  }).fail(function(err) {
+    console.log(err);
+  });
+}
+
+function createCalendar() {
+  var title = $("#new-calendar input[name='title'").val();
+  $.post('/api/calendars?auth_token=' + getAuthToken(), {
+    "name": title
+  }, function(data) {
+    window.location.replace(window.location);
+  }).fail(function(err) {
+    console.log(err);
   });
 }
 
