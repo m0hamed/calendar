@@ -86,3 +86,31 @@ function display_calendar() {
         });
     });
 }
+
+function processEvent() {
+  var calendar_id = $('#calendar').data('calendar-id');
+  var event_id = $("#event-form input[name='event_id'").val()
+  if (event_id === "") {
+    $.post('/api/calendars/'+calendar_id+'/events?auth_token='+getAuthToken(),
+           getEventData(),
+           function(){ clearEventForm(); window.location.reload()});
+  } else {
+  }
+}
+
+function getEventData() {
+  return {
+    name: $("#event-form input[name='name'").val(),
+    place: $("#event-form input[name='location'").val(),
+    starts_at: $("#event-form input[name='starts'").val(),
+    ends_at: $("#event-form input[name='ends'").val(),
+  }
+}
+
+function clearEventForm() {
+  $("#event-form input[name='event_id'").val("")
+  $("#event-form input[name='name'").val("")
+  $("#event-form input[name='location'").val("")
+  $("#event-form input[name='starts'").val("")
+  $("#event-form input[name='ends'").val("")
+}
