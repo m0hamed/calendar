@@ -122,6 +122,8 @@ function set_event(event) {
   $("#event_location").text(event.location);
   $("#event_starts").text(event.start);
   $("#event_ends").text(event.end);
+
+  window.scrollTo(1000,1000);
 }
 
 function clearEvent() {
