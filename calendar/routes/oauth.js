@@ -10,9 +10,8 @@ var router  = express.Router({mergeParams: true});
 
 router.get('/', function(req, res, next) {
   var state = JSON.parse(req.query.state);
-  console.log(req.query.code);
   var user = state.user;
-  google.update_token(user, req.query.code);
+  google.updateToken(user, req.query.code);
   res.redirect('http://instacalendar.tz:3000' + state.url);
 });
 

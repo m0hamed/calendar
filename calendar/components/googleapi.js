@@ -7,8 +7,7 @@ var google     = require('googleapis'),
     _          = require('lodash'),
     db         = require('./db.js');
 
-var SCOPES = ['https://www.googleapis.com/auth/calendar.readonly',
-              'https://www.googleapis.com/auth/calendar'];
+var SCOPE = 'https://www.googleapis.com/auth/calendar';
 
 var CLIENT_ID     = "736239933078-gb14pldjeoklau6rptu1f30vmtnl8ov4.apps.googleusercontent.com", 
     CLIENT_SECRET = "hpp9EWJAggs6RYptSAhwDhCs",
@@ -28,7 +27,7 @@ module.exports = {
       if (state.user.token && !state.user.cred) {
         oauth2Client.getToken(state.user.token, function(err,tokens) {
           oauth2Client.setCredentials(tokens);
-          update_cred(state.user, tokens).then(function () {
+          updateCred(state.user, tokens).then(function () {
             resolve(oauth2Client);
           });
         });
@@ -39,14 +38,14 @@ module.exports = {
         var authUrl = oauth2Client.generateAuthUrl({
           access_type: 'offline',
           state: JSON.stringify(state),
-          scope: SCOPES[readonly ? 0 : 1],
+          scope: SCOPE,
         });
-        reject(authUrl);
+        reject({url: authUrl});
       }
     });
   },
 
-  update_token: function (user, token) {
+  updateToken: function (user, token) {
     user.token = token;
     var id = user._id;
     delete user._id;
@@ -58,7 +57,7 @@ module.exports = {
     });
   },
 
-  get_events: function(auth) {
+  getEvents: function(auth) {
     var calendar = google.calendar('v3');
     return new Promise(function(resolve, reject) {
       calendar.events.list({
@@ -67,43 +66,42 @@ module.exports = {
         timeMin: (new Date()).toISOString(),
         singleEvents: true
       }, function(err,response) {
+        console.log(response);
         if (!err) resolve(response.items);
         else reject(err);
       });
     });
   },
 
-  send_events: function(auth, events) {
+  sendEvents: function(auth, events) {
     var calendar = google.calendar('v3');
     var promises = [];
     events.forEach(function(event) {
       promises.push(new Promise(function(resolve,reject) {
-        calendar.events.insert({
+        var req = {
           auth: auth,
-          caledarId: 'primary',
+          calendarId: 'primary',
           resource: googlify(event)
-        }, function(err, event) {
+        };
+        var func = calendar.events.insert;
+        if (event.google_id) {
+          req.eventId = event.google_id;
+          func = calendar.events.update;
+        }
+        func(req, function(err, googleEvent) {
           if (err) reject(err);
-          else resolve(event);
+          else resolve({"data": degooglify(googleEvent), "_id": event._id});
         });
       }));
     });
     return Promise.all(promises);
   },
 
-  degooglify: function(googleEvent) {
-    return {
-      name: googleEvent.summary,
-      place: googleEvent.location,
-      starts_at: googleEvent.start.dateTime,
-      ends_at: googleEvent.end.dateTime,
-      google_id: googleEvent.id
-    };
-  }
+  degooglify: degooglify
 };
 
 
-function update_cred(user, cred) {
+function updateCred(user, cred) {
   user.cred = JSON.stringify(cred);
   var id = user._id;
   delete user._id;
@@ -117,7 +115,7 @@ function update_cred(user, cred) {
 
 
 function googlify(event) {
-  googleEvent = {
+  var googleEvent = {
     'start': {
       'dateTime': event.starts_at,
       'timeZone': 'Europe/Helsinki'
@@ -131,3 +129,14 @@ function googlify(event) {
   }
   return googleEvent;
 }
+
+function degooglify(googleEvent) {
+  return {
+    name: googleEvent.summary,
+    place: googleEvent.location,
+    starts_at: googleEvent.start.dateTime,
+    ends_at: googleEvent.end.dateTime,
+    google_id: googleEvent.id
+  };
+}
+

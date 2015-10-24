@@ -14,6 +14,8 @@ var BASE_ROUTE = 'http://instacalendar.tz:3000';
 var calendar_id;
 var user;
 
+//TODO promisify this file
+
 // pre action handler to check authentication token for the 
 // user for all end points
 // authentication token is expected as a query string auth_token
@@ -56,30 +58,64 @@ router.post('/', function(req, res, next) {
 });
 
 router.get('/syncfromremote', function(req, res, next) {
+  console.log(user);
   google.authorize({url: req.originalUrl, "user": user}, true).then(function(auth) {
-    return google.get_events(auth)
+    return google.getEvents(auth);
   }).then(function(events) {
     events.forEach(function(googleEvent) {
       var event = _.extend(google.degooglify(googleEvent), {"calendar_id":
                            calendar_id});
+      console.log('lol');
       db.events.find({"calendar_id": calendar_id, "google_id":
                      event.google_id}).toArray(function(err, result) { 
+        console.log('hello',result);
         if (!result.length)
           db.events.insert(event, function(err, result) {});
+        else
+          db.events.updateById(result[0]._id, event, function(err, result) {});
       }); 
     });
     res.redirect(BASE_ROUTE + '/calendars/' + calendar_id +
                  '/events?auth_token=' + req.query.auth_token);
-  }).catch(function(url) {
-    console.log(url);
-    res.redirect(url);
+  }).catch(function(error) {
+    if (error.url)
+      res.redirect(error.url);
+    else
+      db.users.updateById(user._id, { "username": user.username, "password":
+                           user.password }, function() {
+        res.redirect(BASE_ROUTE + req.originalUrl);
+      }); 
+  }); 
+});
+
+router.get('/synctoremote', function(req, res, next) {
+  var events = [];
+  db.events.findAsync({"calendar_id": calendar_id}).then(function(result) {
+    events = result;
+    return google.authorize({url: req.originalUrl, "user": user}, false);
+  }).then(function(auth) {
+    return google.sendEvents(auth, events);
+  }).then(function(events) {
+    console.log(events);
+    events.forEach(function(event) {
+      db.users.updateById(event._id, _.extend(event.data, {calendar_id: calendar_id}),
+                           function(err, result) {console.log(err, result);});
+    });
+    res.send('remote calendar synced');
+  }).catch(function(error) {
+    if (error.url)
+      res.redirect(error.url);
+    else
+      db.events.updateById(user._id, { "username": user.username, "password":
+                           user.password }, function() {
+        res.redirect(BASE_ROUTE + req.originalUrl);
+      }); 
   });
 });
 
 // end point to list the events for the current calendar
 router.get('/', function(req, res, next) {
-  db.events.find({calendar_id: calendar_id})
-  .toArray(function(err, result) {
+  db.events.findAsync({calendar_id: calendar_id}).then(function(result) {
     res.send(result);
   });
 });
