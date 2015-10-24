@@ -99,20 +99,17 @@ function display_calendar() {
 function processEvent() {
   var calendar_id = $('#calendar').data('calendar-id');
   var event_id = $("#event-form input[name='event_id'").val()
-  if (event_id === "") {
-    $.post('/api/calendars/'+calendar_id+'/events?auth_token='+getAuthToken(),
-           getEventData(),
-           function(){ clearEventForm(); window.location.reload()});
-  } else {
-  }
+  $.post('/api/calendars/'+calendar_id+'/events/'+event_id+'?auth_token='+getAuthToken(),
+         getEventData(),
+         function(){ clearEventForm(); window.location.reload()});
 }
 
 function getEventData() {
   return {
-    name: $("#event-form input[name='name']").val(),
-    place: $("#event-form input[name='location']").val(),
-    starts_at: $("#event-form input[name='starts']").val(),
-    ends_at: $("#event-form input[name='ends']").val(),
+    name: $("#event-form input[name='name'").val(),
+    place: $("#event-form input[name='location'").val(),
+    starts_at: new Date($("#event-form input[name='starts'").val()),
+    ends_at: new Date($("#event-form input[name='ends'").val()),
   }
 }
 
