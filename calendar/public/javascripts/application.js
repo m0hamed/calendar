@@ -86,11 +86,7 @@ function display_calendar() {
           editable: true,
           events: events,
           eventClick: function(calEvent, jsEvent, view) {
-            $("#event-form input[name='name']").val(calEvent.title);
-            $("#event-form input[name='location']").val(calEvent.location);
-            $("#event-form input[name='starts']").val(calEvent.start);
-            $("#event-form input[name='ends']").val(calEvent.end);
-            $("#event-form input[name='event_id']").val(calEvent.id);
+            set_event(calEvent);
           }
         });
     });
@@ -115,8 +111,14 @@ function getEventData() {
   return event;
 }
 
-function display_event(event) {
+function set_event(event) {
   $("#event_id").text(event.id);
+
+  $("#event-form input[name='name']").val(event.title);
+  $("#event-form input[name='location']").val(event.location);
+  $("#event-form input[name='starts']").val(event.start);
+  $("#event-form input[name='ends']").val(event.end);
+
   $("#event_name").text(event.title);
   $("#event_location").text(event.location);
   $("#event_starts").text(event.start);
@@ -124,7 +126,8 @@ function display_event(event) {
 }
 
 function clearEvent() {
-  $("#event-form input[name='event_id'").val("")
+  $("#event_id").val("")
+
   $("#event-form input[name='name'").val("")
   $("#event-form input[name='location'").val("")
   $("#event-form input[name='starts'").val("")
