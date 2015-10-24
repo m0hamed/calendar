@@ -1,11 +1,11 @@
 "use strict"
 
 var express = require('express'),
-  utils   = require('../components/utils.js'),
+  utils   = require('../../components/utils.js'),
   _ = require('lodash'),
   Promise = require('bluebird'),
-  google = require('../components/googleapi.js'),
-  db = require('../components/db.js');
+  google = require('../../components/googleapi.js'),
+  db = require('../../components/db.js');
 
 var router = express.Router({mergeParams:true});
 
@@ -16,7 +16,7 @@ var user;
 
 //TODO promisify this file
 
-// pre action handler to check authentication token for the 
+// pre action handler to check authentication token for the
 // user for all end points
 // authentication token is expected as a query string auth_token
 router.all('*', function(req, res, next) {
@@ -67,13 +67,13 @@ router.get('/syncfromremote', function(req, res, next) {
                            calendar_id});
       console.log('lol');
       db.events.find({"calendar_id": calendar_id, "google_id":
-                     event.google_id}).toArray(function(err, result) { 
+                     event.google_id}).toArray(function(err, result) {
         console.log('hello',result);
         if (!result.length)
           db.events.insert(event, function(err, result) {});
         else
           db.events.updateById(result[0]._id, event, function(err, result) {});
-      }); 
+      });
     });
     res.redirect(BASE_ROUTE + '/calendars/' + calendar_id +
                  '/events?auth_token=' + req.query.auth_token);
@@ -84,8 +84,8 @@ router.get('/syncfromremote', function(req, res, next) {
       db.users.updateById(user._id, { "username": user.username, "password":
                            user.password }, function() {
         res.redirect(BASE_ROUTE + req.originalUrl);
-      }); 
-  }); 
+      });
+  });
 });
 
 router.get('/synctoremote', function(req, res, next) {
@@ -109,7 +109,7 @@ router.get('/synctoremote', function(req, res, next) {
       db.events.updateById(user._id, { "username": user.username, "password":
                            user.password }, function() {
         res.redirect(BASE_ROUTE + req.originalUrl);
-      }); 
+      });
   });
 });
 

@@ -1,10 +1,10 @@
 "use strict";
 
 var express = require('express'),
-    utils   = require('../components/utils.js'),
+    utils   = require('../../components/utils.js'),
     router  = express.Router(),
     _       = require('lodash'),
-    google  = require('../components/googleapi.js'),
+    google  = require('../../components/googleapi.js'),
     Promise = require("bluebird");
 
 // TODO change this to proper db access
@@ -14,7 +14,7 @@ var db = mongo.db('mongodb://127.0.0.1:27017/calendar');
 var calendars = db.collection('calendars');
 var user;
 
-// pre action handler to check the user authentication token 
+// pre action handler to check the user authentication token
 // before all end points
 // authentication token is expected as a query string auth_token
 router.all('*', function(req, res, next) {
@@ -81,7 +81,7 @@ router.delete('/:id', function(req, res, next) {
     });
 });
 
-// extend calendar with user id 
+// extend calendar with user id
 function set_user(calendar, user) {
   return _.assign({}, calendar, {user_id: user._id});
 }
