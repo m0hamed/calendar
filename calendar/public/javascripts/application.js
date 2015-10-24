@@ -92,7 +92,7 @@ function processEvent() {
   var event_id = $("#event-form input[name='event_id'").val()
   $.post('/api/calendars/'+calendar_id+'/events/'+event_id+'?auth_token='+getAuthToken(),
          getEventData(),
-         function(){ clearEventForm(); window.location.reload()});
+         function(){ clearEvent(); window.location.reload()});
 }
 
 function getEventData() {
@@ -104,10 +104,23 @@ function getEventData() {
   }
 }
 
-function clearEventForm() {
+function display_event(event) {
+  $("#event_id").text(event.id);
+  $("#event_name").text(event.title);
+  $("#event_location").text(event.location);
+  $("#event_starts").text(event.start);
+  $("#event_ends").text(event.end);
+}
+
+function clearEvent() {
   $("#event-form input[name='event_id'").val("")
   $("#event-form input[name='name'").val("")
   $("#event-form input[name='location'").val("")
   $("#event-form input[name='starts'").val("")
   $("#event-form input[name='ends'").val("")
+
+  $("#event_name").text("");
+  $("#event_location").text("");
+  $("#event_starts").text("");
+  $("#event_ends").text("");
 }

@@ -13,8 +13,18 @@ block content
 
   br
 
+  div(id="display_event")
+      p name: 
+        span(id="event_name")
+      p location: 
+        span(id="event_location")
+      p starts 
+        span(id="event_starts")
+      p ends 
+        span(id="event_ends")
+
   form(onsubmit="processEvent();return false;", id="event-form")
-    input(name="event_id", type="hidden")
+    input(name="event_id", type="hidden", id="event_id")
     div
       label name 
       input(name="name")
