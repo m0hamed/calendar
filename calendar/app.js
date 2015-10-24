@@ -6,10 +6,10 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
 var routes = require('./routes/index');
-var users = require('./routes/users');
-var events = require('./routes/events');
-var calendars = require('./routes/calendars');
-var oauth = require('./routes/oauth.js');
+var usersApi = require('./routes/api/users');
+var eventsApi = require('./routes/api/events');
+var calendarsApi = require('./routes/api/calendars');
+var oauthApi = require('./routes/api/oauth.js');
 
 var app = express();
 
@@ -26,10 +26,10 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
-app.use('/api/users', users);
-app.use('/api/calendars', calendars);
-app.use('/api/calendars/:cal_id/events', events);
-app.use('/api/oauthcallback', oauth);
+app.use('/api/users', usersApi);
+app.use('/api/calendars', calendarsApi);
+app.use('/api/calendars/:cal_id/events', eventsApi);
+app.use('/api/oauthcallback', oauthApi);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
