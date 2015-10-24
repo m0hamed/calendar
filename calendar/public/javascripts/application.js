@@ -41,6 +41,7 @@ function display_calendar() {
       console.log(data)
       events = data.map(function(event) {
         return {
+          id: event._id,
           title: event.name,
           start: event.starts_at,
           end: event.ends_at
