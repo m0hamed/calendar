@@ -1,0 +1,12 @@
+extends layout
+
+block content
+  h1= title
+  form(onsubmit="register();return false;", id="register")
+    div
+      label username
+      input(name="username")
+    div
+      label password
+      input(name="password", type="passowrd")
+    input(type="submit", value="register")
