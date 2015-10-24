@@ -108,10 +108,9 @@ function getEventData() {
   var event = {
     name: $("#event-form input[name='name'").val(),
     place: $("#event-form input[name='location'").val(),
-    starts_at: new Date($("#event-form input[name='starts'").val()),
-    ends_at: new Date($("#event-form input[name='ends'").val()),
+    starts_at: $("#event-form input[name='starts'").val(),
+    ends_at: $("#event-form input[name='ends'").val(),
   };
-  alert(event);
   return event;
 }
 
@@ -122,5 +121,4 @@ function clearEventForm() {
   $("#event-form input[name='location'").val("")
   $("#event-form input[name='starts'").val("")
   $("#event-form input[name='ends'").val("")
-  return false;
 }
