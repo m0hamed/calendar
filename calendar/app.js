@@ -10,8 +10,8 @@ var usersApi = require('./routes/api/users');
 var eventsApi = require('./routes/api/events');
 var calendarsApi = require('./routes/api/calendars');
 var oauthApi = require('./routes/api/oauth.js');
-var events = require('./routes/calendar.js');
 
+var events = require('./routes/calendar.js');
 var calendars = require('./routes/calendars.js');
 
 var app = express();

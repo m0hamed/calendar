@@ -4,7 +4,12 @@ block content
   h1= title
   div(id="calendar", data-calendar-id=calendar_id)
   script(type="text/javascript").
-    $(display_calendar);
+    $(document).ready(function() {
+      display_calendar();
+      $('#event-form input[name="starts"]').datetimepicker();
+      $('#event-form input[name="ends"]').datetimepicker();
+
+    });
 
   br
 
