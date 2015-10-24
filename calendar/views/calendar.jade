@@ -5,3 +5,18 @@ block content
   div(id="calendar", data-calendar-id=calendar_id)
   script(type="text/javascript").
     $(display_calendar);
+
+  form(onsubmit="processEvent();return false;", id="event-form")
+    div
+      label name
+      input(name="name")
+    div
+      label location
+      input(name="location")
+    div
+      label starts
+      input(name="starts")
+    div
+      label ends
+      input(name="ends")
+    input(type="submit", value="Submit")
