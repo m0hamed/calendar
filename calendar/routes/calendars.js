@@ -1,10 +1,13 @@
-var express = require('express');
-var utils = require('../components/utils.js');
-var router = express.Router();
-var _ = require('lodash');
+"use strict";
 
-var Promise = require("bluebird");
+var express = require('express'),
+    utils   = require('../components/utils.js'),
+    router  = express.Router(),
+    _       = require('lodash'),
+    google  = require('../components/googleapi.js'),
+    Promise = require("bluebird");
 
+// TODO change this to proper db access
 var mongo = Promise.promisifyAll(require('mongoskin'));
 var ID = mongo.helper.toObjectID;
 var db = mongo.db('mongodb://127.0.0.1:27017/calendar');
