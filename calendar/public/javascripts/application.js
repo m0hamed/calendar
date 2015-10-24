@@ -36,7 +36,7 @@ function getCalendars() {
     console.log(data);
     data.forEach(function(calendar) {
       $("#calendars").append($("<a />", {
-        href: "/calendars/" + calendar._id + "/events?auth_token=" + getAuthToken(),
+        href: "/events/" + calendar._id + "?auth_token=" + getAuthToken(),
         text: calendar.name
       }));
       $("#calendars").append("<br/>");
