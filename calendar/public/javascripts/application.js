@@ -112,7 +112,7 @@ function getEventData() {
 }
 
 function set_event(event) {
-  $("#event_id").text(event.id);
+  $("#event_id").val(event.id);
 
   $("#event-form input[name='name']").val(event.title);
   $("#event-form input[name='location']").val(event.location);
@@ -138,4 +138,13 @@ function clearEvent() {
   $("#event_starts").text("");
   $("#event_ends").text("");
   return false;
+}
+
+function deleteEvent() {
+  var event_id = $("#event-form input[name='event_id'").val()
+  var calendar_id = $('#calendar').data('calendar-id');
+  console.log(event_id);
+  $.ajax('/api/calendars/'+calendar_id+'/events/'+event_id+'?auth_token='+getAuthToken(),
+         {type: "DELETE"}).
+           done(function(){ clearEvent(); window.location.reload()});
 }
