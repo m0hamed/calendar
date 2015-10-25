@@ -92,7 +92,7 @@ function display_calendar() {
 
 function processEvent() {
   var calendar_id = $('#calendar').data('calendar-id');
-  var event_id = $("#event_id").text();
+  var event_id = $("#event_id").val();
   $.post('/api/calendars/'+calendar_id+'/events/'+event_id+'?auth_token='+getAuthToken(),
          getEventData(),
          function(){ clearEvent(); 
@@ -105,18 +105,17 @@ function getEventData() {
     place: $("#event-form input[name='location'").val(),
     starts_at: new Date($("#event-form input[name='starts'").val()),
     ends_at: new Date($("#event-form input[name='ends'").val()),
-    google_id: $("#google_id").text(),
+    google_id: $("#google_id").val(),
   };
   console.log(event);
   return event;
 }
 
 function set_event(event) {
-  $("#event_id").text(event.id);
-  $("#google_id").text(event.google_id);
+  $("#event_id").val(event.id);
+  $("#google_id").val(event.google_id);
 
-  $("#event-form input[name='name']").val(event.title);
-  $("#event-form input[name='location']").val(event.location);
+  $("#event-form input[name='name']").val(event.title); $("#event-form input[name='location']").val(event.location);
   $("#event-form input[name='starts']").val(event.start);
   $("#event-form input[name='ends']").val(event.end);
 
@@ -129,8 +128,8 @@ function set_event(event) {
 }
 
 function clearEvent() {
-  $("#event_id").text("")
-  $("#google_id").text("")
+  $("#event_id").val("")
+  $("#google_id").val("")
 
   $("#event-form input[name='name'").val("")
   $("#event-form input[name='location'").val("")
@@ -169,4 +168,13 @@ function syncToRemote() {
              syncToRemote();
          });
   return false;
+}
+
+function deleteEvent() {
+  var event_id = $("#event_id").val()
+  var calendar_id = $('#calendar').data('calendar-id');
+  console.log(event_id);
+  $.ajax('/api/calendars/'+calendar_id+'/events/'+event_id+'?auth_token='+getAuthToken(),
+         {type: "DELETE"}).
+           done(function(){ clearEvent(); window.location.reload()});
 }

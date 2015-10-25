@@ -16,7 +16,6 @@ var CLIENT_ID     = "736239933078-gb14pldjeoklau6rptu1f30vmtnl8ov4.apps.googleus
 module.exports = {
 
   authorize: function(state, readonly) {
-    console.log(state);
     var clientSecret = CLIENT_SECRET;
     var clientId = CLIENT_ID;
     var redirectUrl = REDIRECT_URL;
@@ -66,7 +65,6 @@ module.exports = {
         calendarId: 'primary',
         singleEvents: true
       }, function(err,response) {
-        console.log(response);
         if (!err) resolve(response.items);
         else reject(err);
       });
@@ -127,7 +125,6 @@ function googlify(event) {
     'location': event.place,
     'summary': event.name
   }
-  console.log('google event', googleEvent);
   return googleEvent;
 }
 
@@ -135,8 +132,8 @@ function degooglify(googleEvent) {
   return {
     name: googleEvent.summary,
     place: googleEvent.location,
-    starts_at: googleEvent.start.dateTime,
-    ends_at: googleEvent.end.dateTime,
+    starts_at: new Date(googleEvent.start.dateTime),
+    ends_at: new Date(googleEvent.end.dateTime),
     google_id: googleEvent.id
   };
 }

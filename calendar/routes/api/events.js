@@ -75,7 +75,6 @@ router.all('/syncfromremote', function(req, res, next) {
     else
       res.status(200).send('calendar synced');
   }).catch(function(error) {
-    console.log('error', error);
     if (error.url)
       res.status(307).send(error.url);
     else
@@ -95,8 +94,8 @@ router.all('/synctoremote', function(req, res, next) {
     return google.sendEvents(auth, events);
   }).then(function(events) {
     events.forEach(function(event) {
-      db.users.updateById(event._id, _.extend(event.data, {calendar_id: calendar_id}),
-                           function(err, result) {console.log(err, result);});
+      db.events.updateById(event._id, _.extend(event.data, {calendar_id: calendar_id}),
+                           function(err, result) {console.log('update result', err, result);});
     });
     if (req.query.redir)
       res.render('calendar', { title: '', calendar_id: calendar_id });

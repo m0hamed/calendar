@@ -14,14 +14,15 @@ block content
   br
 
   div(id="display_event")
-      p name: 
-        span(id="event_name")
-      p location: 
-        span(id="event_location")
-      p starts 
-        span(id="event_starts")
-      p ends 
-        span(id="event_ends")
+    p name: 
+      span(id="event_name")
+    p location: 
+      span(id="event_location")
+    p starts 
+      span(id="event_starts")
+    p ends 
+      span(id="event_ends")
+    button(onClick="deleteEvent();") Delete
 
   form(onsubmit="processEvent();return false;", id="event-form")
     input(name="event_id", type="hidden", id="event_id")
@@ -45,5 +46,3 @@ block content
   a(href="#", onClick="syncToRemote();return false;") Sync events to your google calendar
   br
   a(href="#", onclick="syncFromRemote();return false;") Sync events from your google calendar
-
-
