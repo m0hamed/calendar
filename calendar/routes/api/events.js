@@ -55,6 +55,7 @@ router.post('/', function(req, res, next) {
            });
 });
 
+// sync endpoint to sync to remote
 router.all('/syncfromremote', function(req, res, next) {
   google.authorize({url: req.originalUrl, "user": user}, true).then(function(auth) {
     return google.getEvents(auth);
@@ -85,6 +86,7 @@ router.all('/syncfromremote', function(req, res, next) {
   });
 });
 
+// sync endpoint to sync to remote
 router.all('/synctoremote', function(req, res, next) {
   var events = [];
   db.events.findAsync({"calendar_id": calendar_id}).then(function(result) {

@@ -1,3 +1,4 @@
+// uses an ajax call to get a login token and stores it
 function login() {
   var username = $("#login input[name='username']").val();
   var password = $("#login input[name='password']").val();
@@ -11,10 +12,16 @@ function login() {
        window.location.replace("/calendars?auth_token=" + data.token);
      }
   ).fail(function(){
-    $("#notification").text("Login failed please try again");
+    setNotification("Login failed please try again");
   });
 }
 
+// sets a message to the notification div
+function setNotification(message) {
+    $("#notification").text(message);
+}
+
+// uses an ajax call to register the user
 function register() {
   var username = $("#register input[name='username']").val();
   var password = $("#register input[name='password']").val();
@@ -27,10 +34,11 @@ function register() {
        window.location.replace("/");
      }
   ).fail(function(err){
-    $("#notification").text("Registeration failed! please try again.");
+    setNotification("Registeration failed! please try again.");
   });
 }
 
+// uses an ajax call to get a list of calendars
 function getCalendars() {
   $.get("/api/calendars?auth_token=" + getAuthToken(), function(data) {
     data.forEach(function(calendar) {
@@ -42,9 +50,11 @@ function getCalendars() {
     });
   }).fail(function(err) {
     console.log(err);
+    setNotification(err);
   });
 }
 
+// uses an ajax call to create a calendar
 function createCalendar() {
   var title = $("#new-calendar input[name='title'").val();
   $.post('/api/calendars?auth_token=' + getAuthToken(), {
@@ -53,13 +63,16 @@ function createCalendar() {
     window.location.replace(window.location);
   }).fail(function(err) {
     console.log(err);
+    setNotification(err);
   });
 }
 
+// returns the login token
 function getAuthToken() {
   return localStorage.getItem('login_token');
 }
 
+// displays the current calendar in the calendar page
 function display_calendar() {
   var calendar_id = $('#calendar').data('calendar-id');
   $.get('/api/calendars/'+calendar_id+'/events?auth_token='+getAuthToken(),
@@ -90,6 +103,7 @@ function display_calendar() {
     });
 }
 
+// Creates a new event or updates an existing one based on the form data
 function processEvent() {
   var calendar_id = $('#calendar').data('calendar-id');
   var event_id = $("#event_id").val();
@@ -99,6 +113,7 @@ function processEvent() {
            window.location.replace('/events/' + calendar_id + '?auth_token=' + getAuthToken())});
 }
 
+// gets the event form data as a json object.
 function getEventData() {
   var event = {
     name: $("#event-form input[name='name'").val(),
@@ -111,6 +126,7 @@ function getEventData() {
   return event;
 }
 
+// sets the event form data to the supplied event and also fills the display with the info
 function set_event(event) {
   $("#event_id").val(event.id);
   $("#google_id").val(event.google_id);
@@ -127,6 +143,7 @@ function set_event(event) {
   window.scrollTo(0,1000);
 }
 
+// clears the currently selected event from display and form
 function clearEvent() {
   $("#event_id").val("")
   $("#google_id").val("")
@@ -170,6 +187,7 @@ function syncToRemote() {
   return false;
 }
 
+// deletes the currently selected event
 function deleteEvent() {
   var event_id = $("#event_id").val()
   var calendar_id = $('#calendar').data('calendar-id');

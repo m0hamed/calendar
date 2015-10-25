@@ -5,6 +5,7 @@ var express = require('express'),
     router  = express.Router(),
     _       = require('lodash');
 
+// endpoint to view one calendar
 router.get('/:id', function(req, res, next) {
   res.render('calendar', { title: '', calendar_id: req.params.id });
 });
