@@ -33,7 +33,6 @@ function register() {
 
 function getCalendars() {
   $.get("/api/calendars?auth_token=" + getAuthToken(), function(data) {
-    console.log(data);
     data.forEach(function(calendar) {
       $("#calendars").append($("<a />", {
         href: "/events/" + calendar._id + "?auth_token=" + getAuthToken(),
@@ -65,17 +64,16 @@ function display_calendar() {
   var calendar_id = $('#calendar').data('calendar-id');
   $.get('/api/calendars/'+calendar_id+'/events?auth_token='+getAuthToken(),
     function(data) {
-      console.log(data)
       events = data.map(function(event) {
         return {
           id: event._id,
           title: event.name,
           start: event.starts_at,
           end: event.ends_at,
-          location: event.place
+          location: event.place,
+          google_id: event.google_id
         };
       });
-      console.log(events);
       $('#calendar').fullCalendar(
         {
           header: {
@@ -94,10 +92,11 @@ function display_calendar() {
 
 function processEvent() {
   var calendar_id = $('#calendar').data('calendar-id');
-  var event_id = $("#event-form input[name='event_id'").val()
+  var event_id = $("#event_id").text();
   $.post('/api/calendars/'+calendar_id+'/events/'+event_id+'?auth_token='+getAuthToken(),
          getEventData(),
-         function(){ clearEvent(); window.location.reload()});
+         function(){ clearEvent(); 
+           window.location.replace('/events/' + calendar_id + '?auth_token=' + getAuthToken())});
 }
 
 function getEventData() {
@@ -106,12 +105,15 @@ function getEventData() {
     place: $("#event-form input[name='location'").val(),
     starts_at: $("#event-form input[name='starts'").val(),
     ends_at: $("#event-form input[name='ends'").val(),
+    google_id: $("#google_id").text(),
   };
+  console.log(event);
   return event;
 }
 
 function set_event(event) {
   $("#event_id").text(event.id);
+  $("#google_id").text(event.google_id);
 
   $("#event-form input[name='name']").val(event.title);
   $("#event-form input[name='location']").val(event.location);
@@ -123,11 +125,12 @@ function set_event(event) {
   $("#event_starts").text(event.start);
   $("#event_ends").text(event.end);
 
-  window.scrollTo(1000,1000);
+  window.scrollTo(0,1000);
 }
 
 function clearEvent() {
-  $("#event_id").val("")
+  $("#event_id").text("")
+  $("#google_id").text("")
 
   $("#event-form input[name='name'").val("")
   $("#event-form input[name='location'").val("")
@@ -137,5 +140,33 @@ function clearEvent() {
   $("#event_location").text("");
   $("#event_starts").text("");
   $("#event_ends").text("");
+  return false;
+}
+
+function syncFromRemote() {
+  var calendar_id = $('#calendar').data('calendar-id');
+  $.post('/api/calendars/' + calendar_id + '/events/syncfromremote?auth_token='
+         + getAuthToken(), {}, function(data) { 
+           window.location.reload();
+         }).fail(function(error) { 
+           if (error.status == 307)
+             window.location.replace(error.responseText);
+           else if (error.status == 417)
+             syncFromRemote();
+         });
+  return false;
+}
+
+function syncToRemote() {
+  var calendar_id = $('#calendar').data('calendar-id');
+  $.post('/api/calendars/' + calendar_id + '/events/synctoremote?auth_token='
+         + getAuthToken(), {}, function(data) { 
+           window.location.reload();
+         }).fail(function(error) { 
+           if (error.status == 307)
+             window.location.replace(error.responseText);
+           else if (error.status == 417)
+             syncToRemote();
+         });
   return false;
 }

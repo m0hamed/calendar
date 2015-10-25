@@ -32,7 +32,7 @@ router.post('/login', function(req, res, next) {
     if (!result) throw "Username or password is wrong"
     get_token(result).then((token) => res.send({token: token}));
   }).catch(function (err) {
-    res.status(403).send(err)
+    res.status(403).send(err);
   });
 });
 

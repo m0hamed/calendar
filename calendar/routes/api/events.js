@@ -46,8 +46,6 @@ router.all('*', function(req, res, next) {
 
 // end point to create a new event for the current calendar
 router.post('/', function(req, res, next) {
-  console.log(req.params);
-  console.log(req.body);
   db.events.
     insert(_.extend(req.body, {"calendar_id": calendar_id}),
            function(err, result) {
@@ -57,38 +55,37 @@ router.post('/', function(req, res, next) {
            });
 });
 
-router.get('/syncfromremote', function(req, res, next) {
-  console.log(user);
+router.all('/syncfromremote', function(req, res, next) {
   google.authorize({url: req.originalUrl, "user": user}, true).then(function(auth) {
     return google.getEvents(auth);
   }).then(function(events) {
     events.forEach(function(googleEvent) {
       var event = _.extend(google.degooglify(googleEvent), {"calendar_id":
                            calendar_id});
-      console.log('lol');
       db.events.find({"calendar_id": calendar_id, "google_id":
                      event.google_id}).toArray(function(err, result) {
-        console.log('hello',result);
         if (!result.length)
           db.events.insert(event, function(err, result) {});
         else
           db.events.updateById(result[0]._id, event, function(err, result) {});
       });
     });
-    res.redirect(BASE_ROUTE + '/calendars/' + calendar_id +
-                 '/events?auth_token=' + req.query.auth_token);
+    if (req.query.redir)
+      res.render('calendar', { title: '', calendar_id: calendar_id });
+    else
+      res.status(200).send('calendar synced');
   }).catch(function(error) {
     if (error.url)
-      res.redirect(error.url);
+      res.status(307).send(error.url);
     else
       db.users.updateById(user._id, { "username": user.username, "password":
                            user.password }, function() {
-        res.redirect(BASE_ROUTE + req.originalUrl);
+        res.status(417).send('That didn\'t work! try again.');
       });
   });
 });
 
-router.get('/synctoremote', function(req, res, next) {
+router.all('/synctoremote', function(req, res, next) {
   var events = [];
   db.events.findAsync({"calendar_id": calendar_id}).then(function(result) {
     events = result;
@@ -96,19 +93,21 @@ router.get('/synctoremote', function(req, res, next) {
   }).then(function(auth) {
     return google.sendEvents(auth, events);
   }).then(function(events) {
-    console.log(events);
     events.forEach(function(event) {
       db.users.updateById(event._id, _.extend(event.data, {calendar_id: calendar_id}),
                            function(err, result) {console.log(err, result);});
     });
-    res.send('remote calendar synced');
+    if (req.query.redir)
+      res.render('calendar', { title: '', calendar_id: calendar_id });
+    else
+      res.status(200).send('calendar synced');
   }).catch(function(error) {
     if (error.url)
-      res.redirect(error.url);
+      res.status(307).send(error.url);
     else
-      db.events.updateById(user._id, { "username": user.username, "password":
+      db.users.updateById(user._id, { "username": user.username, "password":
                            user.password }, function() {
-        res.redirect(BASE_ROUTE + req.originalUrl);
+        res.status(417).send('That didn\'t work! try again.');
       });
   });
 });

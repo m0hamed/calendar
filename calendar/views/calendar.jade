@@ -25,6 +25,7 @@ block content
 
   form(onsubmit="processEvent();return false;", id="event-form")
     input(name="event_id", type="hidden", id="event_id")
+    input(name="google_id", type="hidden", id="google_id")
     div
       label name 
       input(name="name")
@@ -37,5 +38,12 @@ block content
     div
       label ends 
       input(name="ends")
+    div
     input(type="submit", value="Submit")
-    button(text="Clear", onClick="clearEventFrom();return false;") Clear
+    button(text="Clear", onClick="clearEvent();return false;") Clear
+
+  a(href="#", onClick="syncToRemote();return false;") Sync events to your google calendar
+  br
+  a(href="#", onclick="syncFromRemote();return false;") Sync events from your google calendar
+
+

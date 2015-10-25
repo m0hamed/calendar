@@ -16,6 +16,7 @@ var CLIENT_ID     = "736239933078-gb14pldjeoklau6rptu1f30vmtnl8ov4.apps.googleus
 module.exports = {
 
   authorize: function(state, readonly) {
+    console.log(state);
     var clientSecret = CLIENT_SECRET;
     var clientId = CLIENT_ID;
     var redirectUrl = REDIRECT_URL;
