@@ -75,6 +75,7 @@ router.all('/syncfromremote', function(req, res, next) {
     else
       res.status(200).send('calendar synced');
   }).catch(function(error) {
+    console.log('error', error);
     if (error.url)
       res.status(307).send(error.url);
     else

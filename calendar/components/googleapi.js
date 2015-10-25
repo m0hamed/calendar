@@ -64,7 +64,6 @@ module.exports = {
       calendar.events.list({
         auth: auth,
         calendarId: 'primary',
-        timeMin: (new Date()).toISOString(),
         singleEvents: true
       }, function(err,response) {
         console.log(response);
@@ -118,16 +117,17 @@ function updateCred(user, cred) {
 function googlify(event) {
   var googleEvent = {
     'start': {
-      'dateTime': event.starts_at,
+      'dateTime': new Date(event.starts_at),
       'timeZone': 'Europe/Helsinki'
     },
     'end': {
-      'dateTime': event.ends_at,
+      'dateTime': new Date(event.ends_at),
       'timeZone': 'Europe/Helsinki'
     },
     'location': event.place,
     'summary': event.name
   }
+  console.log('google event', googleEvent);
   return googleEvent;
 }
 

@@ -68,8 +68,8 @@ function display_calendar() {
         return {
           id: event._id,
           title: event.name,
-          start: event.starts_at,
-          end: event.ends_at,
+          start: new Date(event.starts_at),
+          end: new Date(event.ends_at),
           location: event.place,
           google_id: event.google_id
         };
@@ -103,8 +103,8 @@ function getEventData() {
   var event = {
     name: $("#event-form input[name='name'").val(),
     place: $("#event-form input[name='location'").val(),
-    starts_at: $("#event-form input[name='starts'").val(),
-    ends_at: $("#event-form input[name='ends'").val(),
+    starts_at: new Date($("#event-form input[name='starts'").val()),
+    ends_at: new Date($("#event-form input[name='ends'").val()),
     google_id: $("#google_id").text(),
   };
   console.log(event);
