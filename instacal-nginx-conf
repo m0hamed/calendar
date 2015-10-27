@@ -1,0 +1,40 @@
+upstream app_instacalendar {
+  server 127.0.0.1:3000;
+  keepalive 8;
+}
+
+upstream app_instacalendar_backend {
+  server 127.0.0.1:3001;
+  keepalive 8;
+}
+
+server {
+  listen       80;
+  server_name  instacalendar.tz instacalendar;
+  access_log /var/log/nginx/instacalenar.log;
+
+  location /api/ {
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header Host $http_host;
+    proxy_set_header X-NginX-Proxy true;
+
+    proxy_pass http://app_instacalendar_backend/;
+    proxy_redirect off;
+  }
+
+  location / {
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header Host $http_host;
+    proxy_set_header X-NginX-Proxy true;
+
+    proxy_pass http://app_instacalendar/;
+    proxy_redirect off;
+  }
+
+  error_page   500 502 503 504  /50x.html;
+  location = /50x.html {
+    root   /usr/share/nginx/html;
+  }
+}
