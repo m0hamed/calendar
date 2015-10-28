@@ -9,7 +9,7 @@ var express = require('express'),
 
 var router = express.Router({mergeParams:true});
 
-var BASE_ROUTE = 'http://instacalendar.tz:3000';
+var BASE_ROUTE = 'http://instacalendar.tz';
 
 var calendar_id;
 var user;
@@ -123,7 +123,7 @@ router.get('/', function(req, res, next) {
 
 // end point to send search data to query events
 router.post('/search', function(req, res, next) {
-  var query = parse(req.body.query);
+  var query = parse(req.body);
   db.events.find(query).toArray(function(err, result) {
     if (!err) res.send(result);
     else res.status(400).send({error: "search failed: " + err});

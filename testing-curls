@@ -1,0 +1,25 @@
+# top level directory for the git repo
+
+curl -i -X POST -d @test-data/user -H "Content-type: application/json"  "http://instacalendar.tz/api/users"
+
+curl -i -X POST -d @test-data/login -H "Content-type: application/json" "http://instacalendar.tz/api/users/login"
+
+export auth_token=d78bb0ed-966c-406b-a838-a4a4e9df02b4
+
+curl -i -X POST -d @test-data/calendar -H "Content-type: application/json" "http://instacalendar.tz/api/calendars?auth_token=$auth_token"
+
+export calendar_id=562fb4cb0d39668c6d8845b2
+
+curl -i -X POST -d @test-data/event -H "Content-type: application/json" "http://instacalendar.tz/api/calendars/$calendar_id/events?auth_token=$auth_token"
+
+curl -i -X GET "http://instacalendar.tz/api/calendars?auth_token=$auth_token"
+
+curl -i -X GET "http://instacalendar.tz/api/calendars/$calendar_id/events?auth_token=$auth_token"
+
+export event_id=562fba0dba76d40e09a54758
+
+curl -i -X DELETE "http://instacalendar.tz/api/calendars/$calendar_id/events/$event_id?auth_token=$auth_token"
+
+curl -i -X POST -d @test-data/event-update -H "Content-type: application/json" "http://instacalendar.tz/api/calendars/$calendar_id/events/$event_id?auth_token=$auth_token"
+
+curl -i -X POST -d @test-data/search -H "Content-type: application/json" "http://instacalendar.tz/api/calendars/$calendar_id/events/search?auth_token=$auth_token"
