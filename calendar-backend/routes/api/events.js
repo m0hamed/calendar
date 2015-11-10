@@ -57,7 +57,7 @@ router.post('/', function(req, res, next) {
 
 // sync endpoint to sync to remote
 router.all('/syncfromremote', function(req, res, next) {
-  google.authorize({url: req.originalUrl, "user": user}, true).then(function(auth) {
+  google.authorize({url: req.originalUrl, "user": user}, true, req.get('host')).then(function(auth) {
     return google.getEvents(auth);
   }).then(function(events) {
     events.forEach(function(googleEvent) {
@@ -91,7 +91,7 @@ router.all('/synctoremote', function(req, res, next) {
   var events = [];
   db.events.findAsync({"calendar_id": calendar_id}).then(function(result) {
     events = result;
-    return google.authorize({url: req.originalUrl, "user": user}, false);
+    return google.authorize({url: req.originalUrl, "user": user}, false, req.get('host'));
   }).then(function(auth) {
     return google.sendEvents(auth, events);
   }).then(function(events) {

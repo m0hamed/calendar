@@ -9,16 +9,16 @@ var google     = require('googleapis'),
 
 var SCOPE = 'https://www.googleapis.com/auth/calendar';
 
-var CLIENT_ID     = "736239933078-gb14pldjeoklau6rptu1f30vmtnl8ov4.apps.googleusercontent.com", 
+var CLIENT_ID     = "736239933078-gb14pldjeoklau6rptu1f30vmtnl8ov4.apps.googleusercontent.com",
     CLIENT_SECRET = "hpp9EWJAggs6RYptSAhwDhCs",
-    REDIRECT_URL  = "http://instacalendar.tz/api/oauthcallback"
+    REDIRECT_PATH  = "/api/oauthcallback"
 
 module.exports = {
 
-  authorize: function(state, readonly) {
+  authorize: function(state, readonly, host) {
     var clientSecret = CLIENT_SECRET;
     var clientId = CLIENT_ID;
-    var redirectUrl = REDIRECT_URL;
+    var redirectUrl = "http://" + host + REDIRECT_PATH;
     var auth = new googleAuth();
     var oauth2Client = new auth.OAuth2(clientId, clientSecret, redirectUrl);
     var promiseResult;
