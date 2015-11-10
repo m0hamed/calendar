@@ -9,7 +9,7 @@ upstream app_instacalendar_backend {
 }
 
 server {
-  listen       80;
+  listen       8080;
   server_name  instacalendar.tz instacalendar;
   access_log /var/log/nginx/instacalenar.log;
 
@@ -19,7 +19,7 @@ server {
     proxy_set_header Host $http_host;
     proxy_set_header X-NginX-Proxy true;
 
-    proxy_pass http://app_instacalendar_backend/;
+    proxy_pass http://app_instacalendar_backend/api;
     proxy_redirect off;
   }
 
