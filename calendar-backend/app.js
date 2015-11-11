@@ -24,10 +24,10 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/users', usersApi);
-app.use('/calendars', calendarsApi);
-app.use('/calendars/:cal_id/events', eventsApi);
-app.use('/oauthcallback', oauthApi);
+app.use('/api/users', usersApi);
+app.use('/api/calendars', calendarsApi);
+app.use('/api/calendars/:cal_id/events', eventsApi);
+app.use('/api/oauthcallback', oauthApi);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

@@ -72,7 +72,8 @@ router.all('/syncfromremote', function(req, res, next) {
       });
     });
     if (req.query.redir)
-      res.render('calendar', { title: '', calendar_id: calendar_id });
+      //res.render('calendar', { title: '', calendar_id: calendar_id });
+      res.redirect('/events/' + calendar_id + '?auth_token=' + req.query.auth_token);
     else
       res.status(200).send('calendar synced');
   }).catch(function(error) {
@@ -100,7 +101,7 @@ router.all('/synctoremote', function(req, res, next) {
                            function(err, result) {console.log('update result', err, result);});
     });
     if (req.query.redir)
-      res.render('calendar', { title: '', calendar_id: calendar_id });
+      res.redirect('/events/' + calendar_id + '?auth_token=' + req.query.auth_token);
     else
       res.status(200).send('calendar synced');
   }).catch(function(error) {
