@@ -117,7 +117,7 @@ function processEvent() {
 function list_events(events) {
   events.forEach(function(element, index) {
     $('#event_listing').append('<li> Title: ' + element.title + ', Location: ' +
-                               element.location + '</li>');
+                               (element.location ? element.location : '-') + '</li>');
   });
 }
 
