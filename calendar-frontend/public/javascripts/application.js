@@ -87,6 +87,7 @@ function display_calendar() {
           google_id: event.google_id
         };
       });
+      list_events(events);
       $('#calendar').fullCalendar(
         {
           header: {
@@ -109,8 +110,15 @@ function processEvent() {
   var event_id = $("#event_id").val();
   $.post('/api/calendars/'+calendar_id+'/events/'+event_id+'?auth_token='+getAuthToken(),
          getEventData(),
-         function(){ clearEvent(); 
+         function(){ clearEvent();
            window.location.replace('/events/' + calendar_id + '?auth_token=' + getAuthToken())});
+}
+
+function list_events(events) {
+  events.forEach(function(element, index) {
+    $('#event_listing').append('<li>' + element.title + ' @ ' +
+                               element.location + '</li>');
+  });
 }
 
 // gets the event form data as a json object.
@@ -163,9 +171,9 @@ function clearEvent() {
 function syncFromRemote() {
   var calendar_id = $('#calendar').data('calendar-id');
   $.post('/api/calendars/' + calendar_id + '/events/syncfromremote?auth_token='
-         + getAuthToken(), {}, function(data) { 
+         + getAuthToken(), {}, function(data) {
            window.location.reload();
-         }).fail(function(error) { 
+         }).fail(function(error) {
            if (error.status == 307)
              window.location.replace(error.responseText);
            else if (error.status == 417)
@@ -178,9 +186,9 @@ function syncFromRemote() {
 function syncToRemote() {
   var calendar_id = $('#calendar').data('calendar-id');
   $.post('/api/calendars/' + calendar_id + '/events/synctoremote?auth_token='
-         + getAuthToken(), {}, function(data) { 
+         + getAuthToken(), {}, function(data) {
            window.location.reload();
-         }).fail(function(error) { 
+         }).fail(function(error) {
            if (error.status == 307)
              window.location.replace(error.responseText);
            else if (error.status == 417)
