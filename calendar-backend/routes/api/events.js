@@ -46,12 +46,18 @@ router.all('*', function(req, res, next) {
 
 // end point to create a new event for the current calendar
 router.post('/', function(req, res, next) {
+  req.body.starts_at = new Date(req.body.starts_at);
+  req.body.ends_at = new Date(req.body.ends_at);
+  console.log(req.body);
   db.events.
     insert(_.extend(req.body, {"calendar_id": calendar_id}),
            function(err, result) {
+             console.log(err, result);
              if(result)
                res.send(result);
-             else res.send({error: 'Can not insert event' + req.body.name});
+             else {res.send({error: 'Can not insert event' + req.body.name});
+               console.log(err);
+             }
            });
 });
 
@@ -124,7 +130,9 @@ router.get('/', function(req, res, next) {
 
 // end point to send search data to query events
 router.post('/search', function(req, res, next) {
+  console.log(req.body);
   var query = parse(req.body);
+  console.log(query);
   db.events.find(query).toArray(function(err, result) {
     if (!err) res.send(result);
     else res.status(400).send({error: "search failed: " + err});
